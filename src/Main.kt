@@ -1,23 +1,17 @@
+import engine.ShaderProgram
+import engine.VertextAttributeInfo
 import org.khronos.webgl.Float32Array
 import org.khronos.webgl.WebGLBuffer
 import org.khronos.webgl.WebGLRenderingContext
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLDivElement
+import web.Dom
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Date
 
-open class Entity(var x: Int, y: Int, z: Int) {
-    init {
-
-    }
-}
-
 class Main {
-    init {
-        Entity(0, 1, 2).x
-    }
     class ShaderData {
         var time: Float = 0f
     }

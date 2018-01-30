@@ -1,3 +1,5 @@
+package engine
+
 import org.khronos.webgl.*
 
 class VertextAttributeInfo(val locationName: String, val numElements: Int) {
@@ -58,7 +60,7 @@ class ShaderProgram<T>(
 
         println("verticesBlockSize $verticesBlockSize");
 
-        println("ShaderProgram constructor done");
+        println("engine.ShaderProgram constructor done");
     }
 
     private fun compileShader(source: String, type: Int): WebGLShader {
