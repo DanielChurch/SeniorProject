@@ -1,6 +1,6 @@
 package math
 
-class Quaternion() {
+class Quaternion {
     companion object {
         val zero = Quaternion()
     }
