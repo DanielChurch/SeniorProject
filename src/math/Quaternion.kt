@@ -1,5 +1,6 @@
 package math
 
+
 import kotlin.js.Math
 import kotlin.js.Math.abs
 
@@ -23,6 +24,7 @@ open class Quaternion(var w:Float, var x: Float, var y: Float, var z: Float) {
 
     fun getConjugate(quaternion: Quaternion): Quaternion {
         return Quaternion(-x, -y, -z, w)
+
     }
 
 

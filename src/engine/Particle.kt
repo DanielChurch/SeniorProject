@@ -1,8 +1,6 @@
 package engine
 
-class Particle: RenderingObject() {
+class Particle: Entity() {
     var lifetime = 0
     var currentLife = 0
-
-    override fun render() {}
 }
