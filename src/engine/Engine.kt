@@ -14,6 +14,9 @@ import kotlin.browser.window
 import kotlin.js.Date
 import kotlin.math.*
 
+
+
+
 class Engine {
     companion object {
         lateinit var gl: WebGLRenderingContext
@@ -138,7 +141,7 @@ class Engine {
 
     init {
         val (gl_canvas, gl_context) = initGL(1280, 720)
-        Engine.gl = gl_context
+        gl = gl_context
 
         this.canvas = gl_canvas
         gl_canvas.onkeydown =  {event -> println(event)}
