@@ -1,12 +1,13 @@
 package engine
 
 import math.Quaternion
+import math.Vec3
 import math.Vector3
 
 open class Entity {
-    var position = Vector3.zero
-    var scale = Vector3.zero
-    var velocity = Vector3.zero
-    var acceleration = Vector3.zero
-    var rotation = Quaternion.zero
+    var position = Vec3()
+    var scale = Vec3()
+    var velocity = Vec3()
+    var acceleration = Vec3()
+    var rotation = Vec3()
 }

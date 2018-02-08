@@ -1,5 +1,7 @@
 package engine
 
+import math.Vec3
+
 /*
 arrayOf(
                 -1.0f, -1.0f, 1.0f,
@@ -24,7 +26,7 @@ arrayOf(
     )
  */
 
-class Cube : RenderingObject(
+class Cube(tint: Vec3 = Vec3()) : RenderingObject(
         arrayOf(
                 -1.0f, -1.0f, -1.0f, 0f, 0f, -1f,
                 1.0f, -1.0f, -1.0f, 0f, 0f, -1f,
@@ -81,7 +83,8 @@ class Cube : RenderingObject(
                 ),
         listOf(
                 0
-        )
+        ),
+        tint
 ) {
     init {
 

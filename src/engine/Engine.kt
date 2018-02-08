@@ -1,10 +1,9 @@
 package engine
 
+import jquery.jq
 import math.Mat4
 import math.Vec3
-import math.mat4
 import org.khronos.webgl.Float32Array
-import org.khronos.webgl.WebGLBuffer
 import org.khronos.webgl.WebGLRenderingContext
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
@@ -68,6 +67,7 @@ class Engine {
         precision highp float;
 
         uniform vec3 lightPos;
+        uniform vec3 tint;
 
         varying vec3 color;
 
@@ -77,7 +77,8 @@ class Engine {
         void main(void) {
             float lightPower = 1.0;
             float distance = length(pos.xyz - lightPos);
-            gl_FragColor = vec4(abs(color) * clamp(dot(normalize(normal.xyz), normalize(pos.xyz - lightPos)) * lightPower, 0.0, 1.0), 1.0);
+            vec3 ambient = vec3(0.1, 0.1, 0.1);
+            gl_FragColor = vec4(tint, 0.0) + vec4(abs(color) * clamp(dot(normalize(normal.xyz), normalize(pos.xyz - lightPos)) * lightPower, 0.1, 1.0), 1.0);
         }
     """
 
@@ -136,7 +137,46 @@ class Engine {
         return Pair(gl_canvas, gl_context)
     }
 
+    var pos = mutableListOf<HTMLInputElement>()
+
     init {
+        fun test(text: String) {
+            val vertices = mutableListOf<Float>()
+            val normals = mutableListOf<Float>()
+
+            val indices = mutableListOf<Int>()
+
+            text.split("\n").forEach {
+                val values = it.split(" ")
+
+                if (it.startsWith("vn")) {
+                    normals.addAll(listOf(values[1].toFloat(), values[2].toFloat(), values[3].toFloat()))
+                } else if (it.startsWith("v")) {
+                    vertices.addAll(listOf(values[1].toFloat(), values[2].toFloat(), values[3].toFloat()))
+                } else if (it.startsWith("f")) {
+                    fun getIndex(value: String) = value.split("//")[0].toInt()
+                    indices.addAll(listOf(getIndex(values[1]), getIndex(values[2]), getIndex(values[3])))
+                }
+            }
+
+
+
+            // ObjObject(, normals.toFloatArray(), indices)
+        }
+
+        val x = js("""
+                (function() {
+                    var x;
+                    $.get("out/production/SeniorProjectKotlin/test.txt", function( data ) {
+                        x = data; // can be a global variable too...
+                        test(x);
+                    });
+                    return x;
+                })();
+        """)
+
+        println("test ${x}")
+
         val (gl_canvas, gl_context) = initGL(1280, 720)
         Engine.gl = gl_context
 
@@ -144,8 +184,6 @@ class Engine {
         gl_canvas.onkeydown =  {event -> println(event)}
 
         gl_context.clearColor(0f, 0f, 0f, 1f)
-
-        var pos = mutableListOf<HTMLInputElement>()
 
         (0 until 3).forEach {
             val e = document.createElement("input") as HTMLInputElement
@@ -162,7 +200,7 @@ class Engine {
         val setter = { program: ShaderProgram<ShaderData>, data: ShaderData ->
             program.setUniform1f("time", (start.toFloat() - Date().getTime().toFloat()) / 1000f)
             program.setUniform2f("resolution", gl_canvas.width.toFloat(), gl_canvas.height.toFloat())
-            program.setUniform3f("lightPos", pos[0].value!!.toFloat() / 100, pos[1].value!!.toFloat() / 100, pos[2].value!!.toFloat() / 100)
+            program.setUniform3f("lightPos", pos[0].value.toFloat() / 100, pos[1].value.toFloat() / 100, pos[2].value.toFloat() / 100)
         }
 
         val vainfo = arrayOf(
@@ -217,6 +255,8 @@ class Engine {
         gl.viewport(0, 0, gl_canvas.width, gl_canvas.height)
 
         objects.add(Cube())
+        objects.add(Cube())
+        objects.add(Cube(tint = Vec3(1, 1, 1)))
 
         render(0.0)
     }
@@ -229,30 +269,32 @@ class Engine {
     }
     fun update() {}
     fun render(delta: Double) {
+        pos[0].value = (3 * sin((start.toFloat() - Date().getTime().toFloat()) / 1000f) * 100).toString()
+        pos[2].value = (3 * cos((start.toFloat() - Date().getTime().toFloat()) / 1000f) * 100 - 500).toString()
+
         gl.clear(WebGLRenderingContext.COLOR_BUFFER_BIT or WebGLRenderingContext.DEPTH_BUFFER_BIT)
         gl.clearDepth(1f)
         gl.enable(WebGLRenderingContext.DEPTH_TEST)
 
         shaderProgram.begin(objects[0].attribBuffer, data)
 
-        val vMat = Mat4()
-        // vMat.translate(Vec3(0, 0, -5))
-
-        vMat.translate(Vec3(0, 0, -2 + -5 * abs(sin((start.toFloat() - Date().getTime().toFloat()) / 1000f))))
-        vMat.rotateY(sin((start.toFloat() - Date().getTime().toFloat()) / 1000f))
-        vMat.rotateX(sin((start.toFloat() - Date().getTime().toFloat()) / 100f))
-
+        objects[0].position = Vec3(0, 0, -5)
+        objects[0].rotation = Vec3(sin((start.toFloat() - Date().getTime().toFloat()) / 1000f), sin((start.toFloat() - Date().getTime().toFloat()) / 100f), 0f)
         val scaleAmt = 2.0 * abs(sin((start.toFloat() - Date().getTime().toFloat()) / 1000f))
+        objects[0].scale = Vec3(1, 1, 1)
 
-        vMat.scale(Vec3(scaleAmt, scaleAmt, scaleAmt))
+        // objects[1].position = Vec3(0, 0, -5)
+        // objects[1].scale = Vec3(1, 1, 1)
+        // objects[1].rotation = Vec3(0, sin((start.toFloat() - Date().getTime().toFloat()) / 1000f), 0)
 
+        objects[2].position = Vec3(pos[0].value.toFloat() / 100, pos[1].value.toFloat() / 100, pos[2].value.toFloat() / 100)
+        objects[2].scale = Vec3(0.1, 0.1, 0.1)
 //        vMat.transpose()
 //        vMat.invert()
-        shaderProgram.setUniformMatrix4fv("vMat", vMat.array)
 
 //        println(vMat.array)
 
-        objects[0].render(gl, shaderProgram.drawType)
+        objects.forEach { it.render(gl, shaderProgram) }
 
         shaderProgram.end()
         gl.disable(WebGLRenderingContext.DEPTH_TEST)
